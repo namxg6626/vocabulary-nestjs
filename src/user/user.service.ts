@@ -6,6 +6,7 @@ import { Model } from 'mongoose';
 import { GetUserDto } from './dto/get-user.dto';
 import * as _ from 'lodash';
 import * as bcrypt from 'bcrypt';
+import { entirelyMatchString } from 'src/shared/utils/regex';
 
 @Injectable()
 export class UserService {
@@ -19,7 +20,9 @@ export class UserService {
   }
 
   async createUser(email: string, password: string) {
-    const exist = await this.User.findOne({ email });
+    const exist = await this.User.findOne({
+      email: entirelyMatchString(email),
+    });
     if (!_.isEmpty(exist)) {
       throw new ConflictException('email is taken');
     }
@@ -35,6 +38,6 @@ export class UserService {
   }
 
   async findOneByEmail(email: string) {
-    return await this.User.findOne({ email });
+    return await this.User.findOne({ email: entirelyMatchString(email) });
   }
 }
