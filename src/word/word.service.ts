@@ -38,7 +38,7 @@ export class WordService {
     const isExist = !!word;
 
     if (isExist) {
-      await word.update({ ...dto, userId });
+      await word.updateOne({ ...dto, userId });
       word.updatedAt = dayjs(dto.updatedAt).toDate();
       return await word.save();
     } else {
