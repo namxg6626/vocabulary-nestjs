@@ -15,6 +15,10 @@ export class UserService {
     private readonly User: Model<UserModel>,
   ) {}
 
+  findById(id: string) {
+    return this.User.findById(id);
+  }
+
   async getUser(dto: GetUserDto) {
     return await this.User.find({ ...dto });
   }
@@ -28,7 +32,7 @@ export class UserService {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const defaultUsername = email.replace(/[\W]/g, '');
+    const defaultUsername = email.split('@')[0].replace(/\W/g, '');
     const newUser = await this.User.create({
       username: defaultUsername,
       email,
