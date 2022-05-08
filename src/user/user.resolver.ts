@@ -1,7 +1,8 @@
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, ValidationPipe } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GetCurrentUser } from 'src/auth/decorator/current-user.decorator';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { ChangePasswordInput } from './dto/change-password.dto';
 import { UpdateProfileInput } from './dto/update-profile.dto';
 import { UserModel } from './models/user.model';
 import { UserService } from './user.service';
@@ -25,8 +26,17 @@ export class UserResolver {
   updateProfile(
     @GetCurrentUser()
     user: any,
-    @Args('input') input: UpdateProfileInput,
+    @Args('input', ValidationPipe) input: UpdateProfileInput,
   ): Promise<UserModel> {
     return this.userService.updateById(user._id, input);
+  }
+
+  @Mutation((type) => UserModel)
+  changePassword(
+    @GetCurrentUser()
+    user: any,
+    @Args('input', ValidationPipe) input: ChangePasswordInput,
+  ): Promise<UserModel> {
+    return this.userService.changePassword(user._id, input);
   }
 }

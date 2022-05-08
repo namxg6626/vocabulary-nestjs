@@ -12,6 +12,7 @@ import * as _ from 'lodash';
 import * as bcrypt from 'bcrypt';
 import { entirelyMatchString } from 'src/shared/utils/regex';
 import { UpdateProfileInput } from './dto/update-profile.dto';
+import { ChangePasswordInput } from './dto/change-password.dto';
 
 @Injectable()
 export class UserService {
@@ -71,5 +72,24 @@ export class UserService {
 
   async findOneByEmail(email: string) {
     return await this.User.findOne({ email: entirelyMatchString(email) });
+  }
+
+  async changePassword(userId: string, input: ChangePasswordInput) {
+    const user = await this.findById(userId);
+    const isMatched = await bcrypt.compare(input.oldPassword, user.password);
+    if (isMatched) {
+      const hashedNewPassword = await bcrypt.hash(input.newPassword, 10);
+      return this.User.findByIdAndUpdate(
+        userId,
+        {
+          $set: {
+            password: hashedNewPassword,
+          },
+        },
+        { new: true },
+      );
+    }
+
+    throw new BadRequestException('Incorrect old password');
   }
 }
